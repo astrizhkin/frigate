@@ -4,6 +4,16 @@ import re
 import urllib.request
 from typing import Literal
 
+import numpy as np
+
+try:
+    from hide_warnings import hide_warnings
+except:  # noqa: E722
+
+    def hide_warnings(func):
+        pass
+
+
 from pydantic import Field
 
 from frigate.detectors.detection_api import DetectionApi
@@ -18,6 +28,14 @@ supported_socs = ["rk3562", "rk3566", "rk3568", "rk3576", "rk3588"]
 supported_models = {ModelTypeEnum.yolonas: "^deci-fp16-yolonas_[sml]$"}
 
 model_cache_dir = "/config/model_cache/rknn_cache/"
+
+yolov8_suffix = {
+    "default-yolov8n": "n",
+    "default-yolov8s": "s",
+    "default-yolov8m": "m",
+    "default-yolov8l": "l",
+    "default-yolov8x": "x",
+}
 
 
 class RknnDetectorConfig(BaseDetectorConfig):

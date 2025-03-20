@@ -1,3 +1,4 @@
+import glob
 import logging
 
 import numpy as np
@@ -10,6 +11,7 @@ from frigate.detectors.detector_config import (
     ModelTypeEnum,
 )
 from frigate.util.model import get_ort_providers
+from frigate.detectors.util import yolov8_postprocess
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,9 @@ class ONNXDetector(DetectionApi):
 
     def detect_raw(self, tensor_input: np.ndarray):
         model_input_name = self.model.get_inputs()[0].name
+        model_input_shape = self.model.get_inputs()[0].shape
+
+        tensor_input = preprocess(tensor_input, model_input_shape, np.float32)
         tensor_output = self.model.run(None, {model_input_name: tensor_input})
 
         if self.onnx_model_type == ModelTypeEnum.yolonas:
@@ -80,6 +85,4 @@ class ONNXDetector(DetectionApi):
                 ]
             return detections
         else:
-            raise Exception(
-                f"{self.onnx_model_type} is currently not supported for rocm. See the docs for more info on supported models."
-            )
+            return yolov8_postprocess(model_input_shape, tensor_output)

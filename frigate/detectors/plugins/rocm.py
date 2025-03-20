@@ -1,4 +1,5 @@
 import ctypes
+import glob
 import logging
 import os
 import subprocess
@@ -15,6 +16,7 @@ from frigate.detectors.detector_config import (
     ModelTypeEnum,
     PixelFormatEnum,
 )
+from frigate.detectors.util import yolov8_postprocess
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +166,4 @@ class ROCmDetector(DetectionApi):
                 ]
             return detections
         else:
-            raise Exception(
-                f"{self.rocm_model_type} is currently not supported for rocm. See the docs for more info on supported models."
-            )
+            return yolov8_postprocess(model_input_shape, tensor_output)
